@@ -91,13 +91,12 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
-
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -189,6 +188,9 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Debug keymaps
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = '[e]xpand message' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -606,9 +608,11 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
-        -- rust_analyzer = {},
+        gopls = {
+          filetypes = { 'go', 'kage' },
+        },
+        pyright = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -823,22 +827,129 @@ require('lazy').setup({
       }
     end,
   },
-
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+  --
+  -- { -- You can easily change to a different colorscheme.
+  --   -- Change the name of the colorscheme plugin below, and then
+  --   -- change the command in the config to whatever the name of that colorscheme is.
+  --   --
+  --   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --   'folke/tokyonight.nvim',
+  --   priority = 1000, -- Make sure to load this before all the other start plugins.
+  --   init = function()
+  --     -- Load the colorscheme here.
+  --     -- Like many other themes, this one has different styles, and you could load
+  --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --     vim.cmd.colorscheme 'rose-pine'
+  --
+  --     -- You can configure highlights by doing something like:
+  --     vim.cmd.hi 'Comment gui=none'
+  --   end,
+  -- -- },
+  -- {
+  --   'rose-pine/neovim',
+  --   name = 'rose-pine',
+  --   variant = 'auto', -- auto, main, moon, or dawn
+  --   dark_variant = 'main', -- main, moon, or dawn
+  --   dim_inactive_windows = false,
+  --   extend_background_behind_borders = true,
+  --
+  --   enable = {
+  --     terminal = true,
+  --     legacy_highlights = true, -- Improve compatibility for previous versions of Neovim
+  --     migrations = true, -- Handle deprecated options automatically
+  --   },
+  --
+  --   styles = {
+  --     bold = true,
+  --     italic = true,
+  --     transparency = true,
+  --   },
+  --
+  --   groups = {
+  --     border = 'muted',
+  --     link = 'iris',
+  --     panel = 'surface',
+  --
+  --     error = 'love',
+  --     hint = 'iris',
+  --     info = 'foam',
+  --     note = 'pine',
+  --     todo = 'rose',
+  --     warn = 'gold',
+  --
+  --     git_add = 'foam',
+  --     git_change = 'rose',
+  --     git_delete = 'love',
+  --     git_dirty = 'rose',
+  --     git_ignore = 'muted',
+  --     git_merge = 'iris',
+  --     git_rename = 'pine',
+  --     git_stage = 'iris',
+  --     git_text = 'rose',
+  --     git_untracked = 'subtle',
+  --
+  --     h1 = 'iris',
+  --     h2 = 'foam',
+  --     h3 = 'rose',
+  --     h4 = 'gold',
+  --     h5 = 'pine',
+  --     h6 = 'foam',
+  --   },
+  --
+  --   palette = {
+  --     -- Override the builtin palette per variant
+  --     -- moon = {
+  --     --     base = '#18191a',
+  --     --     overlay = '#363738',
+  --     -- },
+  --   },
+  --
+  --   highlight_groups = {
+  --     -- Comment = { fg = "foam" },
+  --     -- VertSplit = { fg = "muted", bg = "muted" },
+  --   },
+  --
+  --   -- before_highlight = function(group, highlight, palette){
+  --   -- Disable all undercurls
+  --   -- if highlight.undercurl then
+  --   --     highlight.undercurl = false
+  --   -- end
+  --   --
+  --   -- Change palette colour
+  --   -- if highlight.fg == palette.pine then
+  --   --     highlight.fg = palette.foam
+  --   -- end
+  --   -- end,
+  --   -- },
+  --   init = function()
+  --     vim.cmd 'colorscheme rose-pine'
+  --     vim.cmd 'hi Normal guibg=NONE ctermbg=NONE'
+  --   end,
+  -- },
+  {
+    'tiagovla/tokyodark.nvim',
+    opts = {
+      transparent_background = true, -- set background to transparent
+      gamma = 1.00, -- adjust the brightness of the theme
+      styles = {
+        comments = { italic = true }, -- style for comments
+        keywords = { italic = true }, -- style for keywords
+        identifiers = { italic = true }, -- style for identifiers
+        functions = { bold = true }, -- style for functions
+        variables = {}, -- style for variables
+      },
+      custom_highlights = {} or function(highlights, palette)
+        return {}
+      end, -- extend highlights
+      custom_palette = {} or function(palette)
+        return {}
+      end, -- extend palette
+      terminal_colors = true, -- enable terminal colors     -- custom options here
+    },
+    config = function(_, opts)
+      require('tokyodark').setup(opts) -- calling setup is optional
+      vim.cmd 'colorscheme tokyodark'
+      -- vim.cmd 'hi Normal guibg=NONE ctermbg=NONE'
     end,
   },
 
@@ -917,7 +1028,7 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
