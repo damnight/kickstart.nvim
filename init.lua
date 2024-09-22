@@ -152,10 +152,9 @@ vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
 vim.opt.cursorline = true
-
+vim.wo.relativenumber = true
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
-
+vim.opt.scrolloff = 25
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -165,7 +164,6 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
@@ -190,7 +188,29 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- Debug keymaps
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = '[e]xpand message' })
+vim.keymap.set('n', '<leader>ee', vim.diagnostic.open_float, { desc = '[e]xpand message' })
+
+-- Set keymaps for debugging
+vim.api.nvim_set_keymap('n', '<F5>', ':lua require"dap".continue()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<F6>', ':lua require"dap".step_over()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<F7>', ':lua require"dap".step_into()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<F8>', ':lua require"dap".step_out()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>b', ':lua require"dap".toggle_breakpoint()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>B', ':lua require"dap".set_breakpoint(vim.fn.input("Breakpoint condition: "))<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap(
+  'n',
+  '<Leader>ef',
+  ':lua require"dap".set_breakpoint(nil, nil, vim.fn.input("Log point message: "))<CR>',
+  { noremap = true, silent = true }
+)
+vim.api.nvim_set_keymap('n', '<Leader>er', ':lua require"dap".repl.open()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>et', ':lua require"dap".run_last()<CR>', { noremap = true, silent = true })
+
+-- Keymaps for nvim-dap-ui
+vim.api.nvim_set_keymap('n', '<Leader>eq', ':lua require"dapui".toggle()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>eE', ':lua require"dapui".eval()<CR>', { noremap = true, silent = true })
+
+vim.fn.sign_define('DapBreakpoint', { text = '🏮' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -611,7 +631,7 @@ require('lazy').setup({
         gopls = {
           filetypes = { 'go', 'kage' },
         },
-        pyright = {},
+        -- pyright = {},
         rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -955,7 +975,6 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1018,7 +1037,6 @@ require('lazy').setup({
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
-
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -1027,7 +1045,6 @@ require('lazy').setup({
   --
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
-  --
   require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
@@ -1041,6 +1058,37 @@ require('lazy').setup({
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   -- { import = 'custom.plugins' },
+  {
+    'ziontee113/icon-picker.nvim',
+    config = function()
+      require('icon-picker').setup { disable_legacy_commands = true }
+
+      local opts = { noremap = true, silent = true }
+
+      vim.keymap.set('n', '<leader>ii', '<cmd>IconPickerNormal<cr>', opts)
+      vim.keymap.set('n', '<leader>iy', '<cmd>IconPickerYank<cr>', opts) --> Yank the selected icon into register
+      --vim.keymap.set('i', '<C-i>', '<cmd>IconPickerInsert<cr>', opts)
+    end,
+  },
+  {
+    'rcarriga/nvim-dap-ui',
+    dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
+    config = function()
+      require('dapui').setup()
+    end,
+  },
+  {
+    'theHamsta/nvim-dap-virtual-text',
+    config = function()
+      require('nvim-dap-virtual-text').setup()
+    end,
+  },
+  {
+    'leoluz/nvim-dap-go',
+    config = function()
+      require('dap-go').setup()
+    end,
+  },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -1062,6 +1110,9 @@ require('lazy').setup({
     },
   },
 })
+
+-- Apply last visual stuff
+vim.cmd.highlight 'Visual guibg=#640064'
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
