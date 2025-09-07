@@ -161,7 +161,6 @@ vim.opt.scrolloff = 25
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
@@ -192,9 +191,9 @@ vim.keymap.set('n', '<leader>ee', vim.diagnostic.open_float, { desc = '[e]xpand 
 
 -- Set keymaps for debugging
 vim.api.nvim_set_keymap('n', '<F5>', ':lua require"dap".continue()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<F6>', ':lua require"dap".step_over()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<F7>', ':lua require"dap".step_into()<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<F8>', ':lua require"dap".step_out()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<F2>', ':lua require"dap".step_over()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<F3>', ':lua require"dap".step_into()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<F4>', ':lua require"dap".step_out()<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>b', ':lua require"dap".toggle_breakpoint()<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>B', ':lua require"dap".set_breakpoint(vim.fn.input("Breakpoint condition: "))<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap(
@@ -212,6 +211,8 @@ vim.api.nvim_set_keymap('n', '<Leader>eE', ':lua require"dapui".eval()<CR>', { n
 
 vim.fn.sign_define('DapBreakpoint', { text = '🏮' })
 
+vim.keymap.set('n', 'gt', '<cmd>tabprevious<CR>', { desc = 'move to left tab' })
+vim.keymap.set('n', 'gy', '<cmd>tabnext<CR>', { desc = 'move to right tab' })
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -724,7 +725,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        python = { 'isort', 'black' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
