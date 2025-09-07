@@ -361,6 +361,7 @@ require('lazy').setup({
     branch = '0.1.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
+      ---@diagnostic disable-next-line: missing-fields
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
         'nvim-telescope/telescope-fzf-native.nvim',
 
@@ -374,9 +375,11 @@ require('lazy').setup({
           return vim.fn.executable 'make' == 1
         end,
       },
+      ---@diagnostic disable-next-line: missing-fields
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
+      ---@diagnostic disable-next-line: missing-fields
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
@@ -478,18 +481,45 @@ require('lazy').setup({
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     dependencies = {
-      -- Automatically install LSPs and related tools to stdpath for Neovim
-      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
-      'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
-
-      -- Useful status updates for LSP.
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
-
-      -- Allows extra capabilities provided by nvim-cmp
-      'hrsh7th/cmp-nvim-lsp',
+      dependencies = {
+        { 'williamboman/mason.nvim', opts = true },
+        { 'williamboman/mason-lspconfig.nvim', opts = true },
+      },
+      opts = {
+        ensure_installed = {
+          'pyright', -- LSP for python
+          'ruff', -- linter & formatter (includes flake8, pep8, black, isort, etc.)
+          'debugpy', -- debugger
+          'taplo', -- LSP for toml (e.g., for pyproject.toml files)
+        },
+      },
     },
+    init = function()
+      -- this snippet enables auto-completion
+      local lspCapabilities = vim.lsp.protocol.make_client_capabilities()
+      lspCapabilities.textDocument.completion.completionItem.snippetSupport = true
+
+      -- setup pyright with completion capabilities
+      require('lspconfig').pyright.setup {
+        capabilities = lspCapabilities,
+      }
+
+      -- setup taplo with completion capabilities
+      require('lspconfig').taplo.setup {
+        capabilities = lspCapabilities,
+      }
+
+      -- ruff uses an LSP proxy, therefore it needs to be enabled as if it
+      -- were a LSP. In practice, ruff only provides linter-like diagnostics
+      -- and some code actions, and is not a full LSP yet.
+      require('lspconfig').ruff.setup {
+        -- disable ruff as hover provider to avoid conflicts with pyright
+        on_attach = function(client)
+          client.server_capabilities.hoverProvider = false
+        end,
+      }
+    end,
     config = function()
       -- Brief aside: **What is LSP?**
       --
@@ -610,7 +640,6 @@ require('lazy').setup({
           end
         end,
       })
-
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
@@ -689,7 +718,28 @@ require('lazy').setup({
       }
     end,
   },
-
+  -- {
+  --
+  --   -- COMPLETION
+  --   'saghen/blink.cmp',
+  --   version = 'v0.*', -- blink.cmp requires a release tag for its rust binary
+  --
+  --   opts = {
+  --     -- 'default' for mappings similar to built-in vim completion
+  --     -- 'super-tab' for mappings similar to vscode (tab to accept, arrow keys to navigate)
+  --     -- 'enter' for mappings similar to 'super-tab' but with 'enter' to accept
+  --     keymap = { preset = 'default' },
+  --
+  --     highlight = {
+  --       -- sets the fallback highlight groups to nvim-cmp's highlight groups
+  --       -- useful for when your theme doesn't support blink.cmp
+  --       use_nvim_cmp_as_default = true,
+  --     },
+  --     -- set to 'mono' for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+  --     -- adjusts spacing to ensure icons are aligned
+  --     nerd_font_variant = 'mono',
+  --   },
+  -- },
   { -- Autoformat
     'stevearc/conform.nvim',
     event = { 'BufWritePre' },
@@ -738,6 +788,7 @@ require('lazy').setup({
     event = 'InsertEnter',
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
+      ---@diagnostic disable-next-line: missing-fields
       {
         'L3MON4D3/LuaSnip',
         build = (function()
@@ -807,7 +858,6 @@ require('lazy').setup({
           --['<CR>'] = cmp.mapping.confirm { select = true },
           --['<Tab>'] = cmp.mapping.select_next_item(),
           --['<S-Tab>'] = cmp.mapping.select_prev_item(),
-
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
           --  completions whenever it has completion options available.
@@ -959,10 +1009,10 @@ require('lazy').setup({
         functions = { bold = true }, -- style for functions
         variables = {}, -- style for variables
       },
-      custom_highlights = {} or function(highlights, palette)
+      custom_highlights = {} or function()
         return {}
       end, -- extend highlights
-      custom_palette = {} or function(palette)
+      custom_palette = {} or function()
         return {}
       end, -- extend palette
       terminal_colors = true, -- enable terminal colors     -- custom options here
@@ -1019,7 +1069,23 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'javascript',
+        'ninja',
+        'markdown',
+        'python',
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1081,7 +1147,7 @@ require('lazy').setup({
   {
     'theHamsta/nvim-dap-virtual-text',
     config = function()
-      require('nvim-dap-virtual-text').setup()
+      require('nvim-dap-virtual-text').setup {}
     end,
   },
   {
