@@ -491,7 +491,8 @@ require('lazy').setup({
           'pyright', -- LSP for python
           'ruff', -- linter & formatter (includes flake8, pep8, black, isort, etc.)
           'debugpy', -- debugger
-          'taplo', -- LSP for toml (e.g., for pyproject.toml files)
+          'taplo',
+          'gopls', -- LSP for toml (e.g., for pyproject.toml files)
         },
       },
     },
@@ -776,7 +777,7 @@ require('lazy').setup({
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
         python = { 'isort', 'black' },
-        --
+        go = { { 'gofmt' } },
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
